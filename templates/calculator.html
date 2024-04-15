@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.5.0/math.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="{{ url_for('static', filename='calculator.js') }}"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="calculator">
+            <form id="calculator-form" action="/calculate" method="POST">
+                <input type="text" name="expression" id="expression" placeholder="Enter expression" onkeydown="return allowOnlyCalculatorChars(event)" required>
+                <div class="buttons">
+                    <!-- Botones de la calculadora aquí -->
+                    <button type="button" name="parenthesis" value="(" onclick="appendToExpression('(')"> ( </button>
+                    <button type="button" name="parenthesis" value=")" onclick="appendToExpression(')')"> ) </button>
+                    <button type="button" name="operator" value="+" onclick="appendToExpression('+')"> + </button>
+                    <button type="button" name="operator" value="-" onclick="appendToExpression('-')"> - </button>
+                    <button type="button" name="operator" value="*" onclick="appendToExpression('*')"> * </button>
+                    <button type="button" name="operator" value="/" onclick="appendToExpression('/')"> / </button>
+                    <button type="button" onclick="appendToExpression('7')">7</button>
+                    <button type="button" onclick="appendToExpression('8')">8</button>
+                    <button type="button" onclick="appendToExpression('9')">9</button>
+                    <button type="button" onclick="appendToExpression('4')">4</button>
+                    <button type="button" onclick="appendToExpression('5')">5</button>
+                    <button type="button" onclick="appendToExpression('6')">6</button>
+                    <button type="button" onclick="appendToExpression('1')">1</button>
+                    <button type="button" onclick="appendToExpression('2')">2</button>
+                    <button type="button" onclick="appendToExpression('3')">3</button>
+                    <button type="button" onclick="appendToExpression('0')">0</button>
+                    <button type="button" onclick="appendToExpression('.')">.</button>
+                    <button type="button" class="clear" onclick="clearExpression()">C</button>
+                    <button type="submit" class="calculate">Calculate</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="result">
+            {% if result is not none %}
+                <p>Result: {{ result }}</p>
+            {% endif %}
+        </div>
+
+        <div class="analysis">
+            {% if components %}
+                <table>
+                    <tr>
+                        <th>Componente</th>
+                        <th>Tipo</th>
+                    </tr>
+                    {% for component, type in components %}
+                        <tr>
+                            <td>{{ component }}</td>
+                            <td>{{ type }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
+        </div>
+
+        <div class="tree" style="display: none;" data-tree-data="{{ tree_data }}"></div>
+
+        <button onclick="showTree()">Tree</button>
+    </div>
+</body>
+</html>
