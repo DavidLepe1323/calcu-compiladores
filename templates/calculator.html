@@ -6,15 +6,62 @@
     <title>Calculator</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.5.0/math.min.js"></script>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="{{ url_for('static', filename='calculator.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vis-network/standalone/umd/vis-network.min.js"></script>
+    <style>
+        /* Estilos para el contenedor del árbol */
+        .tree-container {
+            width: 800px; /* Ancho del contenedor del árbol */
+            height: 600px; /* Altura del contenedor del árbol */
+            border: 1px solid #ccc;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            overflow: hidden; /* Para ocultar las barras de desplazamiento */
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Sombra */
+        }
+
+        /* Estilos para el árbol */
+        #mynetwork {
+            width: 100%;
+            height: 100%;
+            border: none; /* Eliminar el borde predeterminado */
+        }
+
+        /* Estilos para los nodos del árbol */
+        .node {
+            background-color: #4CAF50; /* Color de fondo */
+            color: white; /* Color de texto */
+            border-radius: 50%; /* Forma del nodo */
+            width: 30px;
+            height: 30px;
+            display: flex; /* Para centrar el contenido */
+            justify-content: center; /* Para centrar el contenido */
+            align-items: center; /* Para centrar el contenido */
+            font-weight: bold; /* Texto en negrita */
+            font-size: 1.2em; /* Tamaño del texto */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Sombra */
+            cursor: pointer; /* Cambiar el cursor al pasar por encima */
+            transition: background-color 0.3s, color 0.3s; /* Transición suave */
+        }
+
+        .node:hover {
+            background-color: #357a38; /* Cambiar color de fondo al pasar por encima */
+        }
+
+        /* Estilos para los bordes del árbol */
+        .edge {
+            width: 1px; /* Grosor del borde */
+            background-color: #ccc; /* Color del borde */
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <div class="calculator">
-            <form id="calculator-form" action="/calculate" method="POST">
+            <form id="calculator-form" action="/calculate" method="POST" onsubmit="saveExpression()">
                 <input type="text" name="expression" id="expression" placeholder="Enter expression" onkeydown="return allowOnlyCalculatorChars(event)" required>
                 <div class="buttons">
+                    <!-- Botones de la calculadora -->
                     <div class="row">
                         <button type="button" class="parenthesis" value="(" onclick="appendToExpression('(')"> ( </button>
                         <button type="button" class="parenthesis" value=")" onclick="appendToExpression(')')"> ) </button>
@@ -71,9 +118,159 @@
             {% endif %}
         </div>
 
-        <div class="tree" style="display: none;" data-tree-data="{{ tree_data }}"></div>
+        <!-- Contenedor para el árbol -->
+        <div class="tree-container" id="tree-container" style="display: none;">
+            <h3>Árbol Sintáctico:</h3>
+            <div id="mynetwork"></div>
+        </div>
 
-        <button onclick="showTree()">Tree</button>
+        <button type="button" class="tree" onclick="showTree()">Tree</button>
+
+        <!-- Aquí puedes agregar más elementos según sea necesario -->
     </div>
+
+    <script>
+        // Lógica JavaScript para la calculadora
+        function appendToExpression(value) {
+            document.getElementById("expression").value += value;
+        }
+
+        function clearExpression() {
+            document.getElementById("expression").value = "";
+        }
+
+        function allowOnlyCalculatorChars(event) {
+            var allowedChars = [
+                "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+                "+", "-", "*", "/", ".", "(", ")", "Backspace", "Delete"
+            ];
+            var key = event.key;
+            if (allowedChars.includes(key)) {
+                return true;
+            } else {
+                event.preventDefault();
+                return false;
+            }
+        }
+
+        // Lógica JavaScript para mostrar el árbol sintáctico
+        function showTree() {
+            var treeDiv = document.querySelector(".tree-container");
+            treeDiv.style.display = "block";
+
+            // Obtener la expresión de la calculadora
+            var expression = document.getElementById("expression").value.trim();
+
+            // Verificar si se ingresó una expresión válida
+            if (expression === "") {
+                alert("Please enter an expression first.");
+                return;
+            }
+
+            // Generar el árbol sintáctico basado en la expresión ingresada
+            var treeData = generateTree(expression);
+
+            // Renderizar el árbol
+            renderTree(treeData);
+        }
+
+        // Generar el árbol sintáctico basado en la expresión ingresada
+        function generateTree(expression) {
+            // Esta es una implementación de ejemplo que simplemente muestra los nodos
+            // basados en los caracteres de la expresión. Debes reemplazar esto con tu lógica real.
+
+            var nodes = [];
+            var edges = [];
+            var nodeCount = 1;
+
+            // Agregar un nodo raíz para la expresión completa
+            nodes.push({ id: nodeCount++, label: expression });
+
+            // Recorrer la expresión para generar los nodos
+            for (var i = 0; i < expression.length; i++) {
+                var char = expression[i];
+
+                // Ignorar espacios en blanco
+                if (char === " ") {
+                    continue;
+                }
+
+                // Crear un nodo para el carácter actual
+                nodes.push({ id: nodeCount++, label: char });
+
+                // Crear una relación entre este nodo y el nodo raíz
+                edges.push({ from: 1, to: nodeCount - 1 });
+            }
+
+            // Evaluar la expresión para obtener el resultado
+            var result;
+            try {
+                result = math.evaluate(expression);
+            } catch (error) {
+                result = "Error: " + error.message;
+            }
+
+            // Agregar el resultado como un nodo adicional
+            nodes.push({ id: nodeCount++, label: "Result: " + result });
+
+            // Crear una relación entre el resultado y el nodo raíz
+            edges.push({ from: 1, to: nodeCount - 1 });
+
+            return { nodes: nodes, edges: edges };
+        }
+
+        // Renderizar el árbol sintáctico
+        function renderTree(treeData) {
+            var container = document.getElementById('mynetwork');
+            var data = {
+                nodes: treeData.nodes,
+                edges: treeData.edges
+            };
+            var options = {
+                layout: {
+                    hierarchical: {
+                        direction: 'UD', // Arriba hacia abajo
+                        sortMethod: 'directed'
+                    }
+                },
+                nodes: {
+                    shape: 'circle', // Forma de los nodos
+                    size: 30, // Tamaño de los nodos
+                    font: {
+                        size: 18, // Tamaño de la fuente
+                        color: '#FFFFFF' // Color del texto
+                    },
+                    borderWidth: 2, // Ancho del borde
+                    color: {
+                        border: '#4CAF50', // Color del borde
+                        background: '#4CAF50' // Color de fondo
+                    }
+                },
+                edges: {
+                    color: '#ccc', // Color de los bordes
+                    width: 1 // Grosor de los bordes
+                }
+            };
+            var network = new vis.Network(container, data, options);
+
+            // Mostrar el contenedor del árbol
+            document.getElementById('tree-container').style.display = 'block';
+        }
+
+        // Guardar la expresión antes de calcular
+        function saveExpression() {
+            var expression = document.getElementById("expression").value.trim();
+            localStorage.setItem("currentExpression", expression);
+        }
+
+        // Recuperar la última expresión ingresada al cargar la página
+        window.onload = function() {
+            var expression = localStorage.getItem("currentExpression");
+            if (expression) {
+                document.getElementById("expression").value = expression;
+            }
+        };
+    </script>
 </body>
 </html>
+
