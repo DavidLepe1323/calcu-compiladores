@@ -9,50 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/vis-network/standalone/umd/vis-network.min.js"></script>
     <style>
         /* Estilos para el contenedor del árbol */
-        .tree-container {
-            width: 800px; /* Ancho del contenedor del árbol */
-            height: 600px; /* Altura del contenedor del árbol */
-            border: 1px solid #ccc;
-            margin-top: 20px;
-            margin-bottom: 20px;
-            overflow: hidden; /* Para ocultar las barras de desplazamiento */
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Sombra */
-        }
 
-        /* Estilos para el árbol */
-        #mynetwork {
-            width: 100%;
-            height: 100%;
-            border: none; /* Eliminar el borde predeterminado */
-        }
-
-        /* Estilos para los nodos del árbol */
-        .node {
-            background-color: #4CAF50; /* Color de fondo */
-            color: white; /* Color de texto */
-            border-radius: 50%; /* Forma del nodo */
-            width: 30px;
-            height: 30px;
-            display: flex; /* Para centrar el contenido */
-            justify-content: center; /* Para centrar el contenido */
-            align-items: center; /* Para centrar el contenido */
-            font-weight: bold; /* Texto en negrita */
-            font-size: 1.2em; /* Tamaño del texto */
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Sombra */
-            cursor: pointer; /* Cambiar el cursor al pasar por encima */
-            transition: background-color 0.3s, color 0.3s; /* Transición suave */
-        }
-
-        .node:hover {
-            background-color: #357a38; /* Cambiar color de fondo al pasar por encima */
-        }
-
-        /* Estilos para los bordes del árbol */
-        .edge {
-            width: 1px; /* Grosor del borde */
-            background-color: #ccc; /* Color del borde */
-        }
     </style>
 </head>
 <body>
@@ -101,7 +58,7 @@
             {% endif %}
         </div>
 
-        <div class="analysis">
+        <di class="analysis">
             {% if components %}
                 <table>
                     <tr>
@@ -116,7 +73,7 @@
                     {% endfor %}
                 </table>
             {% endif %}
-        </div>
+        </di
 
         <!-- Contenedor para el árbol -->
         <div class="tree-container" id="tree-container" style="display: none;">
@@ -237,7 +194,7 @@
                     shape: 'circle', // Forma de los nodos
                     size: 30, // Tamaño de los nodos
                     font: {
-                        size: 18, // Tamaño de la fuente
+                        size: 20, // Tamaño de la fuente
                         color: '#FFFFFF' // Color del texto
                     },
                     borderWidth: 2, // Ancho del borde
@@ -248,7 +205,7 @@
                 },
                 edges: {
                     color: '#ccc', // Color de los bordes
-                    width: 1 // Grosor de los bordes
+                    width: 2 // Grosor de los bordes
                 }
             };
             var network = new vis.Network(container, data, options);
